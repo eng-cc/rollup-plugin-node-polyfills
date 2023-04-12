@@ -28,6 +28,29 @@ EventEmitter.prototype._maxListeners = undefined;
 // added to it. This is a useful default which helps finding memory leaks.
 EventEmitter.defaultMaxListeners = 10;
 
+export const setMaxListeners = function (
+  n = EventEmitter.defaultMaxListeners,
+  ...eventTargets
+) {
+  if (eventTargets.length === 0) {
+    EventEmitter.defaultMaxListeners = n;
+  } else {
+    for (let i = 0; i < eventTargets.length; i++) {
+      const target = eventTargets[i];
+      target.setMaxListeners(n);
+      if (typeof target.setMaxListeners === 'function') {
+        target.setMaxListeners(n);
+      } else {
+        throw new Error(
+          'eventTargets',
+          ['EventEmitter', 'EventTarget'],
+          target,
+        );
+      }
+    }
+  }
+};
+
 EventEmitter.init = function() {
   this.domain = null;
   if (EventEmitter.usingDomains) {
